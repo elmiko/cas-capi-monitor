@@ -10,7 +10,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
-	"k8s.io/component-base/metrics"
 	capiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
@@ -18,6 +17,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/manager/signals"
+	"sigs.k8s.io/controller-runtime/pkg/metrics/server"
 )
 
 func main() {
@@ -29,7 +29,7 @@ func main() {
 	flag.StringVar(&nodeKCFile, "nk", "", "path to kubeconfig for the node resources")
 	flag.Parse()
 
-	capimgr, err := manager.New(config.GetConfigOrDie(), manager.Options{Metrics: metrics.Options{BindAddress: 0}})
+	capimgr, err := manager.New(config.GetConfigOrDie(), manager.Options{Metrics: server.Options{BindAddress: "0"}})
 	if err != nil {
 		log.Error(err, "could not create cluster api resource manager")
 		os.Exit(1)
@@ -52,7 +52,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	nodemgr, err := manager.New(getNodeConfigOrDie(nodeKCFile, log), manager.Options{Metrics: metrics.Options{BindAddress: 0}})
+	nodemgr, err := manager.New(getNodeConfigOrDie(nodeKCFile, log), manager.Options{Metrics: server.Options{BindAddress: "0"}})
 	if err != nil {
 		log.Error(err, "could not create node resource manager")
 		os.Exit(1)
