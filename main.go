@@ -25,6 +25,12 @@ func main() {
 		os.Exit(1)
 	}
 
+	err = capiv1beta1.AddToScheme(mgr.GetScheme())
+	if err != nil {
+		log.Error(err, "unable to add scheme")
+		os.Exit(1)
+	}
+
 	err = builder.
 		ControllerManagedBy(mgr).
 		For(&capiv1beta1.Machine{},
