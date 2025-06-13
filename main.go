@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"os"
 
@@ -66,16 +67,18 @@ func main() {
 		os.Exit(1)
 	}
 
-	go startCapiMgr(capimgr, log)
+	ctx := signals.SetupSignalHandler()
 
-	if err := nodemgr.Start(signals.SetupSignalHandler()); err != nil {
+	go startCapiMgr(ctx, capimgr, log)
+
+	if err := nodemgr.Start(ctx); err != nil {
 		log.Error(err, "could not start node resource manager")
 		os.Exit(1)
 	}
 }
 
-func startCapiMgr(capimgr manager.Manager, log logr.Logger) {
-	if err := capimgr.Start(signals.SetupSignalHandler()); err != nil {
+func startCapiMgr(ctx context.Context, capimgr manager.Manager, log logr.Logger) {
+	if err := capimgr.Start(ctx); err != nil {
 		log.Error(err, "could not start cluster api resource manager")
 		os.Exit(1)
 	}
