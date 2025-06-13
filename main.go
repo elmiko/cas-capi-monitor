@@ -66,13 +66,17 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := capimgr.Start(signals.SetupSignalHandler()); err != nil {
-		log.Error(err, "could not start cluster api resource manager")
-		os.Exit(1)
-	}
+	go startCapiMgr(capimgr, log)
 
 	if err := nodemgr.Start(signals.SetupSignalHandler()); err != nil {
 		log.Error(err, "could not start node resource manager")
+		os.Exit(1)
+	}
+}
+
+func startCapiMgr(capimgr manager.Manager, log logr.Logger) {
+	if err := capimgr.Start(signals.SetupSignalHandler()); err != nil {
+		log.Error(err, "could not start cluster api resource manager")
 		os.Exit(1)
 	}
 }
