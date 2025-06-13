@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/elmiko/cas-capi-monitor/controllers"
+	corev1 "k8s.io/api/core/v1"
 	capiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
@@ -37,7 +38,18 @@ func main() {
 			Client: mgr.GetClient(),
 		})
 	if err != nil {
-		log.Error(err, "could not create controller")
+		log.Error(err, "could not create machine controller")
+		os.Exit(1)
+	}
+
+	err = builder.
+		ControllerManagedBy(mgr).
+		For(&corev1.Node{}).
+		Complete(&controllers.NodeReconciler{
+			Client: mgr.GetClient(),
+		})
+	if err != nil {
+		log.Error(err, "could not create node controller")
 		os.Exit(1)
 	}
 
