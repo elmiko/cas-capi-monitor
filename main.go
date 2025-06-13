@@ -11,6 +11,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
 	"sigs.k8s.io/controller-runtime/pkg/manager/signals"
+	"sigs.k8s.io/controller-runtime/pkg/predicate"
 )
 
 func main() {
@@ -26,7 +27,9 @@ func main() {
 
 	err = builder.
 		ControllerManagedBy(mgr).
-		For(&capiv1beta1.Machine{}).
+		For(&capiv1beta1.Machine{},
+			builder.WithPredicates(predicate.AnnotationChangedPredicate{}),
+			builder.OnlyMetadata).
 		Complete(&controllers.MachineReconciler{
 			Client: mgr.GetClient(),
 		})
