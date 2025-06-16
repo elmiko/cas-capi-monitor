@@ -18,7 +18,7 @@ func (r *MachineReconciler) Reconcile(ctx context.Context, req reconcile.Request
 
 	m := &capiv1beta1.Machine{}
 	err := r.Get(ctx, req.NamespacedName, m)
-	if err != nil {
+	if client.IgnoreNotFound(err) != nil {
 		return reconcile.Result{}, err
 	}
 

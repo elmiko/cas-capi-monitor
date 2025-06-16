@@ -24,7 +24,7 @@ func (r *NodeReconciler) Reconcile(ctx context.Context, req reconcile.Request) (
 
 	n := &corev1.Node{}
 	err := r.Get(ctx, req.NamespacedName, n)
-	if err != nil {
+	if client.IgnoreNotFound(err) != nil {
 		return reconcile.Result{}, err
 	}
 
