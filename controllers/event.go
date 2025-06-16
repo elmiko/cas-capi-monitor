@@ -16,11 +16,6 @@ type EventReconciler struct {
 func (r *EventReconciler) Reconcile(ctx context.Context, req reconcile.Request) (reconcile.Result, error) {
 	log := logf.Log.WithName("event-reconciler")
 
-	// cluster autoscaler only puts messages in kube-system
-	if req.NamespacedName.Namespace != "kube-system" {
-		return reconcile.Result{}, nil
-	}
-
 	e := &corev1.Event{}
 	err := r.Get(ctx, req.NamespacedName, e)
 	if client.IgnoreNotFound(err) != nil {
