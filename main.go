@@ -35,7 +35,11 @@ func main() {
 		Metrics: server.Options{BindAddress: "0"},
 		Cache: cache.Options{
 			ByObject: map[client.Object]cache.ByObject{
-				&capiv1beta1.Machine{}: {},
+				&capiv1beta1.Machine{}: {
+					Namespaces: map[string]cache.Config{
+						cache.AllNamespaces: {},
+					},
+				},
 			},
 		},
 	}
