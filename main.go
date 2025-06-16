@@ -7,6 +7,7 @@ import (
 
 	"github.com/elmiko/cas-capi-monitor/controllers"
 	"github.com/go-logr/logr"
+	"go.uber.org/zap/zapcore"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
@@ -23,7 +24,7 @@ import (
 )
 
 func main() {
-	logf.SetLogger(zap.New())
+	logf.SetLogger(zap.New(zap.Level(zapcore.Level(-5))))
 	log := logf.Log.WithName("cas-capi-monitor")
 
 	var nodeKCFile string
