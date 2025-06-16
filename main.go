@@ -24,13 +24,19 @@ import (
 )
 
 func main() {
-	logf.SetLogger(zap.New(zap.Level(zapcore.Level(-5))))
-	log := logf.Log.WithName("cas-capi-monitor")
-
+	var debugMode bool
 	var nodeKCFile string
 
+	flag.BoolVar(&debugMode, "debug", false, "turn on extra debug logging")
 	flag.StringVar(&nodeKCFile, "nk", "", "path to kubeconfig for the node resources")
 	flag.Parse()
+
+	if debugMode {
+		logf.SetLogger(zap.New(zap.Level(zapcore.Level(-5))))
+	} else {
+		logf.SetLogger(zap.New())
+	}
+	log := logf.Log.WithName("cas-capi-monitor")
 
 	capimgrScheme := scheme.Scheme
 	err := capiv1beta1.AddToScheme(capimgrScheme)
