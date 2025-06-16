@@ -13,7 +13,6 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	capiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
-	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -40,17 +39,15 @@ func main() {
 	}
 
 	capimgrOptions := manager.Options{
-		Scheme:  capimgrScheme,
-		Metrics: server.Options{BindAddress: "0"},
-		Cache: cache.Options{
-			ByObject: map[client.Object]cache.ByObject{
-				&capiv1beta1.Machine{}: {
-					Namespaces: map[string]cache.Config{
-						cache.AllNamespaces: {},
-					},
+		Scheme: capimgrScheme,
+		Client: client.Options{
+			Cache: &client.CacheOptions{
+				DisableFor: []client.Object{
+					&capiv1beta1.Machine{},
 				},
 			},
 		},
+		Metrics: server.Options{BindAddress: "0"},
 	}
 	capimgr, err := manager.New(config.GetConfigOrDie(), capimgrOptions)
 	if err != nil {
@@ -71,9 +68,11 @@ func main() {
 
 	nodemgrOptions := manager.Options{
 		Metrics: server.Options{BindAddress: "0"},
-		Cache: cache.Options{
-			ByObject: map[client.Object]cache.ByObject{
-				&corev1.Node{}: {},
+		Client: client.Options{
+			Cache: &client.CacheOptions{
+				DisableFor: []client.Object{
+					&corev1.Node{},
+				},
 			},
 		},
 	}
