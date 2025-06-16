@@ -8,6 +8,7 @@ import (
 	"github.com/elmiko/cas-capi-monitor/controllers"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
+	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	capiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
@@ -31,7 +32,15 @@ func main() {
 	flag.StringVar(&nodeKCFile, "nk", "", "path to kubeconfig for the node resources")
 	flag.Parse()
 
+	capimgrScheme := scheme.Scheme
+	err := capiv1beta1.AddToScheme(capimgrScheme)
+	if err != nil {
+		log.Error(err, "unable to add scheme")
+		os.Exit(1)
+	}
+
 	capimgrOptions := manager.Options{
+		Scheme:  capimgrScheme,
 		Metrics: server.Options{BindAddress: "0"},
 		Cache: cache.Options{
 			ByObject: map[client.Object]cache.ByObject{
@@ -46,12 +55,6 @@ func main() {
 	capimgr, err := manager.New(config.GetConfigOrDie(), capimgrOptions)
 	if err != nil {
 		log.Error(err, "could not create cluster api resource manager")
-		os.Exit(1)
-	}
-
-	err = capiv1beta1.AddToScheme(capimgr.GetScheme())
-	if err != nil {
-		log.Error(err, "unable to add scheme")
 		os.Exit(1)
 	}
 
