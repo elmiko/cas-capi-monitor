@@ -99,6 +99,17 @@ func main() {
 		os.Exit(1)
 	}
 
+	err = builder.
+		ControllerManagedBy(nodemgr).
+		For(&corev1.Event{}).
+		Complete(&controllers.EventReconciler{
+			Client: nodemgr.GetClient(),
+		})
+	if err != nil {
+		log.Error(err, "could not create event controller")
+		os.Exit(1)
+	}
+
 	ctx := signals.SetupSignalHandler()
 
 	go startCapiMgr(ctx, capimgr, log)
