@@ -8,11 +8,17 @@ How to build:
 
 How to run:
 
-`./cas-capi-monitor --kubeconfig /path/to/clusterapi/kubeconfig --nk /path/to/node/kubeconfig`
+`./cas-capi-monitor --kubeconfig /path/to/clusterapi/kubeconfig --workload-kubeconfig /path/to/node/kubeconfig --workload-namespace default --management-namespace default`
 
 `--kubeconfig`, or in-cluster settings, should point to the management cluster with the Machine resources.
 
-`--nk`, should point to the workload cluster with the Node and Event resources.
+`--workload-kubeconfig`, should point to the workload cluster with the Node and Event resources.
+
+`--workload-namespace`, should be the namespace where the cluster autoscaler will record Events.
+
+`--management-namespace`, should be the namespace where the cluster api Machines are stored.
+
+There are also shorthand options, see `cas-capi-monitor --help` for more details.
 
 if it works, you will see this kind of output:
 
