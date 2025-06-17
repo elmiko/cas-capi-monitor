@@ -135,18 +135,28 @@ func main() {
 	}
 
 	ctx := signals.SetupSignalHandler()
-
 	go startCapiMgr(ctx, capimgr, log)
+	go startNodeMgr(ctx, nodemgr, log)
 
-	if err := nodemgr.Start(ctx); err != nil {
-		log.Error(err, "could not start node resource manager")
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		}
+	}
+
+}
+
+func startCapiMgr(ctx context.Context, mgr manager.Manager, log logr.Logger) {
+	if err := mgr.Start(ctx); err != nil {
+		log.Error(err, "could not start cluster api resource manager")
 		os.Exit(1)
 	}
 }
 
-func startCapiMgr(ctx context.Context, capimgr manager.Manager, log logr.Logger) {
-	if err := capimgr.Start(ctx); err != nil {
-		log.Error(err, "could not start cluster api resource manager")
+func startNodeMgr(ctx context.Context, mgr manager.Manager, log logr.Logger) {
+	if err := mgr.Start(ctx); err != nil {
+		log.Error(err, "could not start node resource manager")
 		os.Exit(1)
 	}
 }
