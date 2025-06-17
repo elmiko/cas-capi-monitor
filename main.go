@@ -14,6 +14,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	capiv1beta1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
+	"sigs.k8s.io/controller-runtime/pkg/cache"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
@@ -26,9 +27,16 @@ import (
 func main() {
 	var debugMode bool
 	var nodeKCFile string
+	var mgmtNamespace string
+	var workNamespace string
 
 	flag.BoolVar(&debugMode, "debug", false, "turn on extra debug logging")
-	flag.StringVar(&nodeKCFile, "nk", "", "path to kubeconfig for the node resources")
+	flag.StringVar(&nodeKCFile, "workload-kubeconfig", "", "path to kubeconfig for the workload cluster")
+	flag.StringVar(&nodeKCFile, "wk", "", "path to kubeconfig for the workload cluster (shorthand)")
+	flag.StringVar(&mgmtNamespace, "management-namespace", "", "namespace for management cluster resources")
+	flag.StringVar(&mgmtNamespace, "mn", "", "namespace for management cluster resources (shorthand)")
+	flag.StringVar(&workNamespace, "workload-namespace", "", "namespace for the workload cluster resources")
+	flag.StringVar(&workNamespace, "wn", "", "namespace for the workload cluster resources (shorthand)")
 	flag.Parse()
 
 	if debugMode {
@@ -56,6 +64,14 @@ func main() {
 		},
 		Metrics: server.Options{BindAddress: "0"},
 	}
+	if len(mgmtNamespace) > 0 {
+		capimgrOptions.NewCache = func(config *rest.Config, opts cache.Options) (cache.Cache, error) {
+			opts.DefaultNamespaces = map[string]cache.Config{
+				mgmtNamespace: {},
+			}
+			return cache.New(config, opts)
+		}
+	}
 	capimgr, err := manager.New(config.GetConfigOrDie(), capimgrOptions)
 	if err != nil {
 		log.Error(err, "could not create cluster api resource manager")
@@ -82,6 +98,14 @@ func main() {
 				},
 			},
 		},
+	}
+	if len(workNamespace) > 0 {
+		nodemgrOptions.NewCache = func(config *rest.Config, opts cache.Options) (cache.Cache, error) {
+			opts.DefaultNamespaces = map[string]cache.Config{
+				workNamespace: {},
+			}
+			return cache.New(config, opts)
+		}
 	}
 	nodemgr, err := manager.New(getNodeConfigOrDie(nodeKCFile, log), nodemgrOptions)
 	if err != nil {
