@@ -138,13 +138,14 @@ func main() {
 	go startCapiMgr(ctx, capimgr, log)
 	go startNodeMgr(ctx, nodemgr, log)
 
-	for {
+	notDone := true
+	for notDone {
 		select {
 		case <-ctx.Done():
-			return
+			notDone = false
 		}
 	}
-
+	log.Info("exiting monitor")
 }
 
 func startCapiMgr(ctx context.Context, mgr manager.Manager, log logr.Logger) {
