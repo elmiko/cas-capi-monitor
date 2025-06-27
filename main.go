@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/elmiko/cas-capi-monitor/controllers"
+	"github.com/elmiko/cas-capi-monitor/watchers"
 	"github.com/go-logr/logr"
 	"go.uber.org/zap/zapcore"
 	corev1 "k8s.io/api/core/v1"
@@ -138,6 +139,9 @@ func main() {
 	go startCapiMgr(ctx, capimgr, log)
 	go startNodeMgr(ctx, nodemgr, log)
 
+	watcher := watchers.NewWatcher(capimgr.GetClient(), nodemgr.GetClient())
+	go startWatcher(ctx, watcher)
+
 	notDone := true
 	for notDone {
 		select {
@@ -160,6 +164,10 @@ func startNodeMgr(ctx context.Context, mgr manager.Manager, log logr.Logger) {
 		log.Error(err, "could not start node resource manager")
 		os.Exit(1)
 	}
+}
+
+func startWatcher(ctx context.Context, watcher watchers.Watcher) {
+	watcher.Start(ctx)
 }
 
 func getNodeConfigOrDie(filename string, log logr.Logger) *rest.Config {
