@@ -65,7 +65,7 @@ func (w Watcher) harvestAndLogData(ctx context.Context, log logr.Logger) {
 		_, minOk := md.Annotations[minSizeAnnotation]
 		_, maxOk := md.Annotations[maxSizeAnnotation]
 		if minOk && maxOk {
-			annotatedMachineDeployments = append(annotatedMachineDeployments, md.Name)
+			annotatedMachineDeployments = append(annotatedMachineDeployments, fmt.Sprintf("%s/%d", md.Name, md.Spec.Replicas))
 		}
 	}
 	log.V(0).Info("observed MachineDeployments with scaling annotations",
