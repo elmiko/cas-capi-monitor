@@ -14,7 +14,6 @@ import (
 )
 
 const (
-	loopDelay         = 5 * time.Second
 	minSizeAnnotation = "cluster.x-k8s.io/cluster-api-autoscaler-node-group-min-size"
 	maxSizeAnnotation = "cluster.x-k8s.io/cluster-api-autoscaler-node-group-max-size"
 )
@@ -22,17 +21,20 @@ const (
 type Watcher struct {
 	managementClient client.Client
 	workloadClient   client.Client
+	interval         int
 }
 
-func NewWatcher(mClient, wClient client.Client) Watcher {
+func NewWatcher(mClient, wClient client.Client, interval int) Watcher {
 	return Watcher{
 		managementClient: mClient,
 		workloadClient:   wClient,
+		interval:         interval,
 	}
 }
 
 func (w Watcher) Start(ctx context.Context) {
 	log := logf.Log.WithName("watcher")
+	loopDelay := time.Duration(w.interval) * time.Second
 
 	for {
 		loopStart := time.Now()

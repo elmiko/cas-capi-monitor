@@ -30,6 +30,7 @@ func main() {
 	var nodeKCFile string
 	var mgmtNamespace string
 	var workNamespace string
+	var watcherInterval int
 
 	flag.BoolVar(&debugMode, "debug", false, "turn on extra debug logging")
 	flag.StringVar(&nodeKCFile, "workload-kubeconfig", "", "path to kubeconfig for the workload cluster")
@@ -38,6 +39,8 @@ func main() {
 	flag.StringVar(&mgmtNamespace, "mn", "", "namespace for management cluster resources (shorthand)")
 	flag.StringVar(&workNamespace, "workload-namespace", "", "namespace for the workload cluster resources")
 	flag.StringVar(&workNamespace, "wn", "", "namespace for the workload cluster resources (shorthand)")
+	flag.IntVar(&watcherInterval, "watcher-interval", 5, "interval in seconds for the watcher loop, default 5 seconds")
+	flag.IntVar(&watcherInterval, "wi", 5, "interval in seconds for the watcher loop, default 5 seconds (shorthand)")
 	flag.Parse()
 
 	if debugMode {
@@ -139,7 +142,7 @@ func main() {
 	go startCapiMgr(ctx, capimgr, log)
 	go startNodeMgr(ctx, nodemgr, log)
 
-	watcher := watchers.NewWatcher(capimgr.GetClient(), nodemgr.GetClient())
+	watcher := watchers.NewWatcher(capimgr.GetClient(), nodemgr.GetClient(), watcherInterval)
 	go startWatcher(ctx, watcher)
 
 	notDone := true
