@@ -23,7 +23,7 @@ func (r *MachineReconciler) Reconcile(ctx context.Context, req reconcile.Request
 	}
 
 	if val, ok := m.Annotations[capiv1beta1.DeleteMachineAnnotation]; ok {
-		log.V(0).Info("observed Machine with deletion annotation", "name", m.Name, "value", val)
+		log.V(0).Info("Machine with deletion annotation", "name", m.Name, "value", val)
 	}
 
 	return reconcile.Result{}, nil

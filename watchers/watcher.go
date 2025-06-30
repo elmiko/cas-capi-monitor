@@ -70,7 +70,7 @@ func (w Watcher) harvestAndLogData(ctx context.Context, log logr.Logger) {
 			annotatedMachineDeployments = append(annotatedMachineDeployments, fmt.Sprintf("%s/%d", md.Name, *md.Spec.Replicas))
 		}
 	}
-	log.V(0).Info("observed MachineDeployments with scaling annotations",
+	log.V(0).Info("MachineDeployments with scaling annotations",
 		"count", len(annotatedMachineDeployments),
 		"names", strings.Join(annotatedMachineDeployments, ","))
 
@@ -96,13 +96,13 @@ func (w Watcher) harvestAndLogData(ctx context.Context, log logr.Logger) {
 			}
 		}
 	}
-	log.V(0).Info("observed Nodes with true ready condition",
+	log.V(0).Info("Nodes with true ready condition",
 		"count", len(readyNodes),
 		"names", strings.Join(readyNodes, ","))
-	log.V(0).Info("observed Nodes with false or unknown ready condition",
+	log.V(0).Info("Nodes with false or unknown ready condition",
 		"count", len(notReadyNodes),
 		"names", strings.Join(notReadyNodes, ","))
-	log.V(0).Info("observed Nodes with non-zero deletion timestamp",
+	log.V(0).Info("Nodes with non-zero deletion timestamp",
 		"count", len(deletingNodes),
 		"names", strings.Join(deletingNodes, ","))
 
@@ -117,7 +117,7 @@ func (w Watcher) harvestAndLogData(ctx context.Context, log logr.Logger) {
 			pendingPods = append(pendingPods, fmt.Sprintf("%s/%s", p.Namespace, p.Name))
 		}
 	}
-	log.V(0).Info("observed pending Pods",
+	log.V(0).Info("Pods in pending phase",
 		"count", len(pendingPods),
 		"names", strings.Join(pendingPods, ","))
 }

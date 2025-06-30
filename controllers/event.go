@@ -23,7 +23,7 @@ func (r *EventReconciler) Reconcile(ctx context.Context, req reconcile.Request) 
 	}
 
 	if e.Source.Component == "cluster-autoscaler" {
-		log.V(0).Info("observed cluster-autoscaler generated Event", "reason", e.Reason, "message", e.Message)
+		log.V(0).Info("Event from cluster-autoscaler", "reason", e.Reason, "message", e.Message)
 	}
 
 	return reconcile.Result{}, nil

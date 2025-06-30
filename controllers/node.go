@@ -31,9 +31,9 @@ func (r *NodeReconciler) Reconcile(ctx context.Context, req reconcile.Request) (
 	for _, t := range n.Spec.Taints {
 		switch t.Key {
 		case toBeDeletedTaint:
-			log.V(0).Info("observed Node with ToBeDeleted taint", "name", n.Name)
+			log.V(0).Info("Node with ToBeDeleted taint", "name", n.Name)
 		case deletionCandidateTaint:
-			log.V(0).Info("observed Node with DeletionCandidate taint", "name", n.Name)
+			log.V(0).Info("Node with DeletionCandidate taint", "name", n.Name)
 		default:
 			continue
 		}
