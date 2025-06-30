@@ -74,6 +74,38 @@ func (w Watcher) harvestAndLogData(ctx context.Context, log logr.Logger) {
 		"count", len(annotatedMachineDeployments),
 		"names", strings.Join(annotatedMachineDeployments, ","))
 
+	nodeList := &corev1.NodeList{}
+	if err := w.workloadClient.List(ctx, nodeList); err != nil {
+		log.Error(err, "unable to list nodes")
+	}
+
+	readyNodes := []string{}
+	notReadyNodes := []string{}
+	deletingNodes := []string{}
+	for _, n := range nodeList.Items {
+		if n.DeletionTimestamp != nil {
+			deletingNodes = append(deletingNodes, n.Name)
+		}
+		for _, c := range n.Status.Conditions {
+			if c.Type == corev1.NodeReady {
+				if c.Status == corev1.ConditionTrue {
+					readyNodes = append(readyNodes, n.Name)
+				} else {
+					notReadyNodes = append(notReadyNodes, n.Name)
+				}
+			}
+		}
+	}
+	log.V(0).Info("observed Nodes with true ready condition",
+		"count", len(readyNodes),
+		"names", strings.Join(readyNodes, ","))
+	log.V(0).Info("observed Nodes with false or unknown ready condition",
+		"count", len(notReadyNodes),
+		"names", strings.Join(notReadyNodes, ","))
+	log.V(0).Info("observed Nodes with non-zero deletion timestamp",
+		"count", len(deletingNodes),
+		"names", strings.Join(deletingNodes, ","))
+
 	podList := &corev1.PodList{}
 	if err := w.workloadClient.List(ctx, podList); err != nil {
 		log.Error(err, "unable to list pods")
