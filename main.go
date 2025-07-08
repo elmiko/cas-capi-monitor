@@ -107,6 +107,7 @@ func main() {
 		nodemgrOptions.NewCache = func(config *rest.Config, opts cache.Options) (cache.Cache, error) {
 			opts.DefaultNamespaces = map[string]cache.Config{
 				workNamespace: {},
+				"":            {},
 			}
 			return cache.New(config, opts)
 		}
