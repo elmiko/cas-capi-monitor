@@ -16,12 +16,14 @@ def main():
     for l, line in enumerate(lines):
         try:
             d = json.loads(line)
-            data.append(d)
+            if d.get('msg') == 'Event from cluster-autoscaler':
+                data.append(d)
         except Exception as ex:
             print(f'error reading log line {l}: {ex}')
             sys.exit(1)
 
-    print(f'{len(data)} records processed')
+    for d in data:
+        print(f'{d.get("ts")} {d.get("reason")} {d.get("message")}')
 
 
 if __name__ == '__main__':
